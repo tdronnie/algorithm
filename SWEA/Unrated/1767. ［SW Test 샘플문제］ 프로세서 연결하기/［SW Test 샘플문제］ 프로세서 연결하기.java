@@ -1,6 +1,3 @@
-/*
- 최대한 많은 코어에 연결하는 것이 우선, 경우의 수가 여러가지라면 전선의 길이 합이 최소가 되는 값 구하기
- */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -90,31 +87,38 @@ public class Solution {
                     break;
                 }
                 wire++;
+
+
             }
 
-            //전선 깔기
+            //깔린 전선 있을 경우 결괏값 다음 턴으로 넘겨주기
+            //전선깔린 코어 더해줄지 말지 정해야하기 떼문에 전선이 깔린지 안깔린지에 따라 분기
             int sr = core.r;
             int sc = core.c;
-            for (int k = 0; k < wire; k++) {
-                sr += dx[i];
-                sc += dy[i];
-                board[sr][sc] = 1;
-            }
-            //깔린 전선 있을 경우 결괏값 다음 턴으로 넘겨주기
             if (wire != 0) {
+                //전선 깔기
+                for (int k = 0; k < wire; k++) {
+                    sr += dx[i];
+                    sc += dy[i];
+                    board[sr][sc] = 1;
+                }
                 setWire(cnt + 1, coreNum + 1, wireLen + wire);
-            } else {
-                setWire(cnt + 1, coreNum, wireLen);
-            }
 
             //깔은 전선 원복!! 같은 코어의 다른 방향 탐색 위해
-            sr = core.r;
-            sc = core.c;
-            for (int k = 0; k < wire; k++) {
-                sr += dx[i];
-                sc += dy[i];
-                board[sr][sc] = 0;
+                sr = core.r;
+                sc = core.c;
+                for (int k = 0; k < wire; k++) {
+                    sr += dx[i];
+                    sc += dy[i];
+                    board[sr][sc] = 0;
+                }
+            } else {
+                setWire(cnt + 1, coreNum, wireLen);
+
             }
+
+
+
         }
     }
 
