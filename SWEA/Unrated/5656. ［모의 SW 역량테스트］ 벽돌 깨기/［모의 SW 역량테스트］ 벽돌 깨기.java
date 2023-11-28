@@ -2,153 +2,177 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Solution {
 
-    static int n, w, h, min = Integer.MAX_VALUE;
-    static int[][] field, copyField;
-    static int[] selected;
+    static int n, w, h, min;
+    static int[][] board, copyBoard;
+    static int[] balls;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
 
         int T = Integer.parseInt(br.readLine());
+
         for (int tc = 1; tc <= T; tc++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            n = Integer.parseInt(st.nextToken()); //구슬 개수
-            w = Integer.parseInt(st.nextToken()); //열 개수
-            h = Integer.parseInt(st.nextToken()); //행 개수
 
-            field = new int[h][w]; //벽돌 정보
+            n = Integer.parseInt(st.nextToken());
+            w = Integer.parseInt(st.nextToken());
+            h = Integer.parseInt(st.nextToken());
+
+            board = new int[h][w];
+            min = Integer.MAX_VALUE;
+
+            //공 떨어뜨릴 경우의 수 구하고
+            //떨어져서 벽돌과 부딪힌 좌표부터 벽돌 깨뜨리기
+            //깨진 빈자리 중력적용
 
             for (int i = 0; i < h; i++) {
                 st = new StringTokenizer(br.readLine());
                 for (int j = 0; j < w; j++) {
-                    field[i][j] = Integer.parseInt(st.nextToken());
+                    board[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
-            selected = new int[n];
-            min = Integer.MAX_VALUE;
-            //구슬 어디에 떨어뜨릴지 정하기
-            selectW(0);
 
+            balls = new int[n];
+            start(0);
             sb.append("#").append(tc).append(" ").append(min).append("\n");
         }
-        System.out.println(sb.toString());
+        System.out.println(sb);
     }
 
-    //중복순열
-    public static void selectW(int cnt) {
+    private static void start(int cnt) {
+
         if (cnt == n) {
-            //n개의 구슬을 벽돌로 떨어뜨리기
-            drop(selected);
+            //board 내에 산발적인 변화가 많기 때문에 복사배열 생성
+            copyBoard = new int[h][w];
+            for (int i = 0; i < h; i++) {
+                for (int j = 0; j < w; j++) {
+                    copyBoard[i][j] = board[i][j];
+                }
+            }
+            for (int k = 0; k < n; k++) {
+
+                //구슬 떨어뜨릴 열 모두 골랐다면 떨어지는 좌표 구하기
+                int row = 0;
+                int col = balls[k];
+
+                //벽돌에 맞을 때까지 떨어뜨려 주기
+                while (row < h - 1 && copyBoard[row][col] == 0) row++;
+                //바닥에 맞았다면 끝내기
+                if (row == h) continue;
+
+                //벽돌에 맞는다면, 벽돌 깨기
+                breakBricks(row, col, copyBoard);
+                //빈공간 중력 적용
+                removeEmpty(copyBoard);
+
+            }
+            //가장 많은 벽돌이 제거되는 경우의 수 구하기
+            int cntBricks = 0;
+            for (int i = 0; i < h; i++) {
+                for (int j = 0; j < w; j++) {
+                    if (copyBoard[i][j] > 0)
+                        cntBricks++;
+                }
+            }
+            min = Math.min(min, cntBricks);
             return;
         }
+
+        //중복 순열
         for (int i = 0; i < w; i++) {
-            selected[cnt] = i;
-            selectW(cnt + 1);
+            balls[cnt] = i;
+            start(cnt + 1);
         }
+
+
     }
 
-    private static void drop(int[] selected) {
-        //구슬 n개 던지는 한 턴마다 복사배열 생성해서 적용
-        copyField = new int[h][w];
-        for (int x = 0; x < h; x++) {
-            for (int y = 0; y < w; y++) {
-                copyField[x][y] = field[x][y];
-            }
-        }
-        //n개의 구슬 떨어뜨리기
-        for (int i = 0; i < n; i++) {
-            int row = 0;
-            int col = selected[i];
-            //1이상의 벽돌이 나올때까지 구슬 떨어짐
-            while (copyField[row][col] == 0 && row < h - 1) row++;
-            //벽돌이 없는 경우
-            if (row == h) continue;
-
-            //연쇄 폭발 시작
-            breakBricks(row, col, copyField);
-            //빈공간으로 벽돌 떨어지기
-            fillBlank(copyField);
-
-        }
-//        남은 벽돌 세기
-        int cnt = 0;
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                if (copyField[i][j] != 0) {
-                    cnt++;
-                }
-            }
-        }
-        min = Math.min(min, cnt);
-    }
-
-    private static void fillBlank(int[][] copy) {
-        //모든 열에 대해서 탐색
-        int[][] fillCopy = new int[h][w];
+    private static void removeEmpty(int[][] copy) {
+        //빈공간 채원주는 것도 역시 복사배열 내에서 변화 많이 일어나므로 깔끔하게 새로운 배열에 값 적용 후 덮어쓰기
+        //0일 때는 copyBoard만 한 행 올라가고 rslt배열은 그대로
+        int[][] rslt = new int[h][w];
         for (int j = 0; j < w; j++) {
-            int start = h - 1;
+            int ground = h - 1;
             for (int i = h - 1; i >= 0; i--) {
                 if (copy[i][j] > 0) {
-                    fillCopy[start][j] = copy[i][j];
-                    start--; //0이 아닌 값으로 벽돌이 채워져 있다면 그대로 쌓아올린다.
+                    rslt[ground][j] = copy[i][j];
+                    ground--;
                 }
-                //0이라면 copy배열은 한탄 올라가고 fill배열은 그대로
             }
         }
 
+        //copyBoard에 복사
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                copyField[i][j] = fillCopy[i][j]; //구슬 n개 던지고 공백 메꾸기도 완료 경우의 수를 위한 복사본에 덮어쓰기
+                copyBoard[i][j] = rslt[i][j];
             }
         }
+    }
+
+    private static void print() {
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                System.out.print(copyBoard[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     static int[] dx = {-1, 0, 1, 0};
     static int[] dy = {0, 1, 0, -1};
 
-    //벽돌 없애주기, bfs
-    public static void breakBricks(int r, int c, int[][] copy) {
-
+    private static void breakBricks(int row, int col, int[][] copyBoard) {
         Queue<int[]> q = new ArrayDeque<>();
-        q.add(new int[]{r, c});
+
+        q.add(new int[]{row, col});
 
         while (!q.isEmpty()) {
             int[] val = q.poll();
-            int bound = copy[val[0]][val[1]];
-            copy[val[0]][val[1]] = 0; //구슬 맞은 벽돌 폭발
-            for (int i = 0; i < 4; i++) {
-                int nx = val[0];
-                int ny = val[1];
+            int bound = copyBoard[val[0]][val[1]];
+            copyBoard[val[0]][val[1]] = 0;
+            //반경 1이면 바로 끝내주기
+            if (bound == 1) {
+                return;
+            }
 
-                for (int j = 0; j < bound - 1; j++) {
-                    nx += dx[i];
-                    ny += dy[i];
-                    //범위 넘어선 경우 해당 방향 끝내기
-                    if (!isValid(nx, ny)) break;
-                    //1인 경우 0으로만 바꿔주기
-                    if (copy[nx][ny] == 1) {
-                        copy[nx][ny] = 0;
-                    }
+            for (int k = 0; k < 4; k++) {
+                //구슬 맞는 좌표부터 시작
+                int newX = val[0];
+                int newY = val[1];
+                //반경 깨뜨리기
+                for (int i = 0; i < bound - 1; i++) {
+                    newX += dx[k];
+                    newY += dy[k];
 
-                    //1이상인 경우 큐에 넣기
-                    if (copy[nx][ny] > 1) {
-                        q.add(new int[]{nx, ny});
+                    //범위체크
+                    if (!isValid(newX, newY)) break;
+
+                    //0이면 통과
+                    if (copyBoard[newX][newY] == 0)
+                        continue;
+                    //1이면 0으로만 바꿔주기
+                    if (copyBoard[newX][newY] == 1) {
+                        copyBoard[newX][newY] = 0;
+                        continue;
                     }
+                    //1이상이면 큐에 넣어주기
+                    q.add(new int[]{newX, newY});
                 }
             }
         }
+
     }
 
-    public static boolean isValid(int x, int y) {
-        if (x < 0 || y < 0 || x >= h || y >= w) {
-            return false;
-        }
-        return true;
+    private static boolean isValid(int newX, int newY) {
+        return newX >= 0 && newY >= 0 && newX < h && newY < w;
     }
 }
