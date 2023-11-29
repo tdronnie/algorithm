@@ -1,73 +1,55 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Solution {
-    private static int[] moveRow = {0, 1, 0, -1}; //우하좌상 이동
-    private static int[] moveCol = {1, 0, -1, 0};
 
-    private static int N;
-
-    public static void main(String[] args) throws IOException{
-
+    static int[] dx = {0, 1, 0, -1};
+    static int[] dy = {1, 0, -1, 0};
+    public static void main(String[] args) throws IOException
+    {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringBuilder sb = new StringBuilder();
+
         int T = Integer.parseInt(br.readLine());
 
-        for (int test_case = 1; test_case <= T; test_case++) {
+        for (int tc = 1; tc <= T; tc++) {
+            int n = Integer.parseInt(br.readLine());
+            int[][] map = new int[n][n];
 
-            StringBuilder sb = new StringBuilder();
-            N = Integer.parseInt(br.readLine());
-            int[][] map = new int[N][N]; //달팽이 배열
-            boolean[][] visited = new boolean[N][N]; //방문처리 배열
-            int k = 0;
-            int num = 1; //저장할 숫자
-            int newX = 0;
-            int newY = 0;
+            int x=0, y=0, dir=0;
+            int num = 1;
+            // 다음 칸이 이미 1이상이거나 범위 넘어가는 경우 다음 방향으로 전환
+            end:
+            while(true){
 
-            while (true) {
-                // 우하좌상 순서로 돌리기
-                while (check(newX, newY)) { //범위 유효한 동안
-                    if (!visited[newX][newY]) { //방문하지 않은 경우
-                        map[newX][newY] = num;
-                        visited[newX][newY] = true;
-                    } else {
-                        break;
-                    }
-                    newX += moveRow[k];
-                    newY += moveCol[k];
-                    num++;
+                while(true) {
+                    if (x < 0 || y < 0 || x >= n || y >= n || map[x][y] != 0) break;
+                    map[x][y] = num++;
+                    x += dx[dir];
+                    y += dy[dir];
                 }
-                // 앞으로 한 칸 간 것 뺴주기
-                newX -= moveRow[k];
-                newY -= moveCol[k];
+                //한 칸 더 간것 빼주기
+                x -= dx[dir];
+                y -= dy[dir];
+                
+                dir = (dir + 1) % 4; //방향 전환 후 이동
+                x += dx[dir];
+                y += dy[dir];
 
-                k++;
-                if (k == 4) //우하좌상 다 돌면 다시 우로 시작
-                    k = 0;
-                newX += moveRow[k];
-                newY += moveCol[k];
-
-                //이동 했을 때 범위에 벗어나거나 이미 방문한 곳이면 종료
-                if (!check(newX, newY) || visited[newX][newY]) {
-                    break;
-                }
+                if(x<0 || y<0 || x>=n || y>=n || map[x][y]!=0) break;
             }
-            sb.append("#"+test_case+"\n");
-            for (int i = 0; i < map.length; i++) {
-                for (int j = 0; j < map[0].length; j++) {
-                    sb.append(map[i][j] + " ");
+
+            sb.append("#").append(tc).append("\n");
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    sb.append(map[i][j]).append(" ");
                 }
                 sb.append("\n");
             }
-            bw.write(sb.toString());
 
         }
-        bw.flush();
-        bw.close();
-        br.close();
-    }
+        System.out.println(sb);
 
-    //범위 체크 메서드
-    public static boolean check(int newX, int newY){
-        return newX >= 0 && newY >= 0 && newX < N && newY < N;
     }
 }
