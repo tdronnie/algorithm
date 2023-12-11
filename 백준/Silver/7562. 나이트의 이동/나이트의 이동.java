@@ -1,7 +1,8 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.PriorityQueue;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -9,7 +10,9 @@ public class Main {
     static int n, startX, startY, endX, endY;
     static int[][] board;
 
-    static class Loc implements Comparable<Loc> {
+    static boolean[][] visited;
+
+    static class Loc{
         int x, y, move;
 
         public Loc(int x, int y, int move) {
@@ -17,15 +20,9 @@ public class Main {
             this.y = y;
             this.move = move;
         }
-
-        @Override
-        public int compareTo(Loc o) {
-            return this.move - o.move;
-        }
     }
 
-    public static void main(String[] args) throws IOException
-    {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
 
@@ -33,12 +30,7 @@ public class Main {
         for (int tc = 1; tc <= T; tc++) {
             n = Integer.parseInt(br.readLine());
             board = new int[n][n];
-
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    board[i][j] = Integer.MAX_VALUE;
-                }
-            }
+            visited = new boolean[n][n];
 
             StringTokenizer st = new StringTokenizer(br.readLine());
             startX = Integer.parseInt(st.nextToken());
@@ -48,12 +40,7 @@ public class Main {
             endX = Integer.parseInt(st.nextToken());
             endY = Integer.parseInt(st.nextToken());
 
-            if(startX == endX && startY == endY){
-                sb.append(0).append("\n");
-                continue;
-            }
-            findMinMove();
-            sb.append(board[endX][endY]).append("\n");
+            sb.append(findMinMove()).append("\n");
         }
         System.out.println(sb);
 
@@ -61,36 +48,32 @@ public class Main {
 
     static int[] dx = {-2, -1, 1, 2, 2, 1, -1, -2};
     static int[] dy = {1, 2, 2, 1, -1, -2, -2, -1};
+    public static int findMinMove() {
 
-    private static void findMinMove() {
-        PriorityQueue<Loc> pq = new PriorityQueue<Loc>();
-        board[startX][startY] = 0;
-        pq.add(new Loc(startX, startY, 0));
+        Queue<Loc> q = new ArrayDeque<>();
+        visited[startX][startY] = true;
+        q.add(new Loc(startX, startY, 0));
 
-        while (!pq.isEmpty()) {
+        while (!q.isEmpty()) {
+            Loc loc = q.poll();
 
-            int pqSize = pq.size();
-            for (int i = 0; i < pqSize; i++) {
-                Loc loc = pq.poll();
-                for (int k = 0; k < 8; k++) {
-
-                    int newX = loc.x + dx[k];
-                    int newY = loc.y + dy[k];
-
-                    if(newX <0 || newY<0 || newX>=n ||newY>= n) continue;
-
-                    if(board[newX][newY] > loc.move + 1){
-                        board[newX][newY] = loc.move + 1;
-                        pq.add(new Loc(newX, newY, board[newX][newY]));
-                    }
-                }
-
+            if (loc.x == endX && loc.y == endY) {
+                return loc.move;
             }
 
+            for (int k = 0; k < 8; k++) {
+                int newX = loc.x + dx[k];
+                int newY = loc.y + dy[k];
 
+                if(newX<0 || newY<0 || newX>=n || newY>=n) continue;
+                if(visited[newX][newY]) continue;
+
+                visited[newX][newY] = true;
+                q.add(new Loc(newX, newY, loc.move + 1));
+
+            }
         }
+        return -1;
 
     }
-
-
 }
