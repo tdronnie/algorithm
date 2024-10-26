@@ -1,63 +1,66 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    static int n, step = 1;
-    static ArrayList<Integer>[] arr;
+    static int N;
+    static ArrayList<Integer>[] graph;
     static boolean[] visited;
-    static int[] ans;
+    static int[] orders;
+    static int order = 1;
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException
+    {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
         StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        int M = Integer.parseInt(st.nextToken());
+        int R = Integer.parseInt(st.nextToken());
+        graph = new ArrayList[N+1];
+        orders = new int[N+1];
 
-        n = Integer.parseInt(st.nextToken()); //정점의 수
-        int m = Integer.parseInt(st.nextToken()); //간선의 수
-        int r = Integer.parseInt(st.nextToken()); //시작 정점
-
-        arr = new ArrayList[n+1];
-        visited = new boolean[n+1]; //방문배열
-
-        for(int i=1; i<=n; i++){
-            arr[i] = new ArrayList<>();
+        for(int i=1; i<=N; i++){
+            graph[i] = new ArrayList<>();
         }
+        visited = new boolean[N+1];
+        Arrays.fill(visited, false);
 
-        for(int i=0; i<m; i++){
+        for(int i=0; i<M; i++){
             st = new StringTokenizer(br.readLine());
-            int from = Integer.parseInt(st.nextToken());
-            int to = Integer.parseInt(st.nextToken());
-            arr[from].add(to);
-            arr[to].add(from);
-        }
-        
-        //오름차순 탐색 위해 각 이어진 노드들 정렬
-        for(int i=1; i<=n; i++){
-            Collections.sort(arr[i]);
-        }
-        visited[r] = true;
-        ans = new int[n+1]; //출력할 정점 수만큼 정답 배열 만들기
-        dfs(r);
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
 
-        for(int i=1; i<=n; i++){
-            System.out.println(ans[i]);
+            graph[u].add(v);
+            graph[v].add(u);
         }
 
+        for(int i=1; i<=N; i++){
+            Collections.sort(graph[i]);
+        }
+
+        dfs(R);
+
+        for(int i=1; i<=N; i++){
+            sb.append(orders[i]).append("\n");
+        }
+        System.out.print(sb);
     }
 
-    public static void dfs(int now){
+    public static void dfs(int start){
+        visited[start] = true;
+        orders[start] = order++;
 
-        //i번째 줄에 i번의 방문 순서 출력
-        ans[now] = step++;
-        for(int i=0; i<arr[now].size(); i++){
-            int val = arr[now].get(i);
-            if(!visited[val]){
-                visited[val] = true;
-                dfs(val);
-            }
+        for(int i=0; i<graph[start].size(); i++){
+            int node = graph[start].get(i);
+            if(visited[node]) continue;
+            dfs(node);
         }
     }
 }
