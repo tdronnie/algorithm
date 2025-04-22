@@ -1,92 +1,77 @@
-import java.io.*;
-import java.util.Comparator;
-import java.util.LinkedList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	static int n, min = Integer.MAX_VALUE;
-	static int[][] map, minus;
-	static boolean[][] visited;
-	static int[] moveR = { -1, 1, 0, 0 };
-	static int[] moveC = { 0, 0, -1, 1 };
+    static int[] moveX = {-1, 0, 1, 0};
+    static int[] moveY = {0, 1, 0 ,-1};
+    static int[][] checkMap, map;
+    static int n;
 
-	public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int problem = 1;
-		while (true) {
-			n = Integer.parseInt(br.readLine());
-			StringBuilder sb = new StringBuilder();
-			if (n == 0)
-				return;
-			else {
-				min = Integer.MAX_VALUE;
-				map = new int[n][n];
-				minus = new int[n][n];
-				visited = new boolean[n][n];
-				for (int i = 0; i < n; i++) {
-					StringTokenizer st = new StringTokenizer(br.readLine());
-					for (int j = 0; j < n; j++) {
-						map[i][j] = Integer.parseInt(st.nextToken());
-						minus[i][j] = Integer.MAX_VALUE;
-					}
-				}
-				minus();
-				sb.append("Problem ").append(problem++).append(": ").append(min);
-				System.out.println(sb.toString());
+        int num = 1;
+        n = Integer.parseInt(br.readLine());
 
-			}
-		}
-	}
+        while(n != 0) {
 
-	private static void minus() {
-		
-		//오름차순으로 작은 루피를 가지는 좌표 부터 먼저 방문
-		PriorityQueue<int[]> q = new PriorityQueue<>(new Comparator<int[]>() {
-			@Override
-			public int compare(int[] o1, int[] o2) {
-				// TODO Auto-generated method stub
-				return o1[2] - o2[2];
-			}
-		});
-		minus[0][0] = map[0][0];
-		q.offer(new int[] { 0, 0, minus[0][0]});
-		
-		while (!q.isEmpty()) {
-			int[] val = q.poll();
-			int r = val[0];
-			int c = val[1];
-			int mr = val[2];
-			for (int k = 0; k < 4; k++) {
-				int newR = r + moveR[k];
-				int newC = c + moveC[k];
-				if (isValid(newR, newC) && !visited[newR][newC]) {
-					visited[r][c] = true;
-					
-					//잃는 루피가 더 없다면 minus배열 업데이트
-					if (minus[newR][newC] > mr + map[newR][newC]) {
-						minus[newR][newC] = mr + map[newR][newC];
-						q.offer(new int[] {newR, newC, mr+map[newR][newC]});
-					}
-					
-					//끝 좌표까지 왔을 경우 최솟값 업데이트
-					if(newR == n-1 && newC == n-1) {
-						min = Math.min(min, minus[newR][newC]);
-					}
-				}
-			}
+            map = new int[n][n];
+            checkMap = new int[n][n];
 
-		}
+            for (int i = 0; i < n; i++) {
+                StringTokenizer st = new StringTokenizer(br.readLine());
+                for (int j = 0; j < n; j++) {
+                    map[i][j] = Integer.parseInt(st.nextToken());
+                    checkMap[i][j] = Integer.MAX_VALUE;
+                }
+            }
 
-	}
+            findMinMinus();
+            sb.append("Problem ").append(num++).append(": ").append(checkMap[n - 1][n - 1]).append("\n");
 
-	private static boolean isValid(int r, int c) {
-		if (r < 0 || c < 0 || r >= n || c >= n)
-			return false;
-		return true;
-	}
+            n = Integer.parseInt(br.readLine());
+        }
 
+        System.out.println(sb);
+
+    }
+
+    static void findMinMinus() {
+        boolean[][] visited = new boolean[n][n];
+        PriorityQueue<int[]> q =  new PriorityQueue<>(((o1, o2) -> o1[2] - o2[2]));
+
+        checkMap[0][0] = map[0][0];
+        q.add(new int[]{0, 0, map[0][0]});
+
+        while (!q.isEmpty()) {
+            int[] value = q.poll();
+            int x = value[0];
+            int y = value[1];
+            int cost = value[2];
+
+            if(visited[x][y]) continue;
+            visited[x][y] = true;
+
+            for (int k = 0; k < 4; k++) {
+                int newX = x + moveX[k];
+                int newY = y + moveY[k];
+
+                if(newX < 0 || newY < 0 || newX >= n || newY >= n) continue;
+                if(visited[newX][newY]) continue;
+
+                int newCost = cost + map[newX][newY];
+
+                if(checkMap[newX][newY] > newCost){
+                    checkMap[newX][newY] = newCost;
+                    q.add(new int[]{newX, newY, newCost});
+                }
+            }
+        }
+    }
 }
