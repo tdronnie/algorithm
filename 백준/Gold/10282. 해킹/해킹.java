@@ -6,11 +6,10 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-
-class Dependency {
+class Pair {
     int com, time;
 
-    Dependency(int com, int time) {
+    Pair(int com, int time) {
         this.com = com;
         this.time = time;
     }
@@ -38,7 +37,7 @@ public class Main {
             int d = Integer.parseInt(st.nextToken());
             int c = Integer.parseInt(st.nextToken());
 
-            ArrayList<Dependency>[] arr = new ArrayList[n + 1];
+            ArrayList<Pair>[] arr = new ArrayList[n + 1];
             for (int i = 1; i <= n; i++) {
                 arr[i] = new ArrayList<>();
             }
@@ -48,34 +47,37 @@ public class Main {
                 int a = Integer.parseInt(st.nextToken());
                 int b = Integer.parseInt(st.nextToken());
                 int s = Integer.parseInt(st.nextToken());
-                arr[b].add(new Dependency(a, s));
+                arr[b].add(new Pair(a, s));
             }
 
             int[] answer = hack(c, arr, n);
             System.out.println(answer[0] + " " + answer[1]);
+
         }
     }
 
-    static int[] hack(int start, ArrayList<Dependency>[] arr, int n) {
-        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
-        boolean[] visited = new boolean[n + 1];
+    static int[] hack(int start, ArrayList<Pair>[] arr, int n) {
+        PriorityQueue<Pair> pq = new PriorityQueue<>((a, b) -> a.getTime() - b.getTime());
         int[] times = new int[n+1];
+
         Arrays.fill(times, Integer.MAX_VALUE);
         times[start] = 0;
-        pq.add(new int[]{start, 0});
+        pq.add(new Pair(start, 0));
 
         while (!pq.isEmpty()) {
-            int[] poll = pq.poll();
-            int com = poll[0];
-            int time = poll[1];
+            Pair curr = pq.poll();
+            int com = curr.com;
+            int time = curr.time;
 
-            for (int i = 0; i < arr[com].size(); i++) {
-                int nextCom = arr[com].get(i).getCom();
-                int newTime = arr[com].get(i).getTime();
+            if(times[com] < time ) continue;
 
-                if (times[nextCom] > time + newTime) {
-                    times[nextCom] = time + newTime;
-                    pq.add(new int[]{nextCom, time + newTime});
+            for(Pair next : arr[com]){
+                int nextCom = next.com;
+                int nextTime = next.time;
+
+                if (times[nextCom] > times[com] + nextTime) {
+                    times[nextCom] = times[com] + nextTime;
+                    pq.add(new Pair(nextCom, times[nextCom]));
                 }
             }
         }
@@ -88,7 +90,6 @@ public class Main {
                 totalTime = Math.max(totalTime, times[i]);
             }
         }
-
         return new int[]{hackedCount, totalTime};
     }
 }
