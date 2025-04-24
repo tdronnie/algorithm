@@ -6,107 +6,85 @@ import java.util.Collections;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
+class City1854{
+    int to, time;
+
+    City1854(int to, int time) {
+        this.to = to;
+        this.time = time;
+    }
+}
+
 public class Main {
 
-	static int k;
-	static PriorityQueue<Integer>[] kDis;
+    static int n;
+    static ArrayList<City1854>[] cities;
+    static PriorityQueue<Integer>[] kDis;
 
-	static class City implements Comparable<City> {
-		int to, cost;
+    public static void main(String[] args) throws IOException
+    {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-		public City(int to, int cost) {
-			super();
-			this.to = to;
-			this.cost = cost;
-		}
+        n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+        int k = Integer.parseInt(st.nextToken());
 
-		@Override
-		public int compareTo(City o) {
-			return o.cost - this.cost; // k번째 찾기 위한 내림차순 정렬
-		}
-	}
+        cities = new ArrayList[n + 1];
+        kDis = new PriorityQueue[n + 1];
+        for(int i=1; i<=n; i++){
+            cities[i] = new ArrayList<>();
+            kDis[i] = new PriorityQueue<>(k, Collections.reverseOrder());
+        }
 
-	static ArrayList<City>[] arr;
+        for (int i = 0; i < m; i++) {
+            st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+            cities[a].add(new City1854(b, c));
+        }
 
-	public static void main(String[] args) throws IOException {
+            findKMinRoute(k);
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= n; i++) {
+            if(kDis[i].size() != k){
+                sb.append(-1).append("\n");
+            } else{
+                sb.append(kDis[i].peek()).append("\n");
+            }
+        }
 
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		int n = Integer.parseInt(st.nextToken());
-		int m = Integer.parseInt(st.nextToken());
-		k = Integer.parseInt(st.nextToken());
+        System.out.println(sb);
 
-		arr = new ArrayList[n + 1];
-		for (int i = 1; i <= n; i++) {
-			arr[i] = new ArrayList<>();
-		}
+    }
 
-		for (int i = 0; i < m; i++) {
-			st = new StringTokenizer(br.readLine());
-			int a = Integer.parseInt(st.nextToken());
-			int b = Integer.parseInt(st.nextToken());
-			int c = Integer.parseInt(st.nextToken());
-			arr[a].add(new City(b, c));
-		}
+    static void findKMinRoute(int k) {
+        PriorityQueue<City1854> pq = new PriorityQueue<>((a, b) -> a.time - b.time);
+        pq.add(new City1854(1, 0));
+        kDis[1].add(0);
 
-		// 1번 도시로부터 각 도시들에 대한 거리 pq 필요
-		//따라서 각 도시들을 인덱스로 하는 pq배열 만들어서 각 도시에 대한 k번째 최단경로 구할 수 있도록
-		kDis = new PriorityQueue[n + 1];
-		for (int i = 1; i <= n; i++) {
-			kDis[i] = new PriorityQueue<>(k, Collections.reverseOrder());
+        while (!pq.isEmpty()) {
+            City1854 city = pq.poll();
+            int curr = city.to;
+            int time = city.time;
 
-		}
-		// 1번 도시에 대해  도시 i로 가는 k번째 최단경로 찾기
-		bfs();
-		for (int i = 1; i <= n; i++) {
-			if (kDis[i].size() != k) // k번째까지 순위 매겨지지 않은 경우
-				System.out.println(-1);
-			else
-				System.out.println(kDis[i].peek()); // 내림차순으로 가장 끝에 있는 k번째 최단거리
-		}
+            for (City1854 next : cities[curr]) {
+                int nextCity = next.to;
+                int nextTime = next.time;
 
-	}
-
-	// 1번 도시부터 대해 bfs 시작
-	private static void bfs() {
-		//거리 순으로 탐색하기 위한 pq생성, 적은 시간인 도로 먼저 탐색하도록 한다
-		PriorityQueue<City> pq = new PriorityQueue<>((c1, c2) -> c1.cost- c2.cost); 
-		pq.add(new City(1, 0));
-		kDis[1].add(0);
-
-		while (!pq.isEmpty()) {
-
-			City c = pq.poll();
-			int cur = c.to;
-			int cost = c.cost;
-
-			//갈 도로가 없는 경우 탐색 종료
-			if(arr[cur].size() == 0)
-				continue; //다음 이어진 도시 탐색
-			
-			for (int j = 0; j < arr[cur].size(); j++) {
-				int next = arr[cur].get(j).to;
-				int nextCost = arr[cur].get(j).cost;
-
-				// k=4인 경우
-				// 7, 5, 4, 3 -> 6 들어오면 7빠지고 6넣기 -> pq.poll() + pq.add()
-				// k 크기의 큐안에 있는 가장 k번째 최단경로보다 더 작은 값이 들어왔을 경우 poll해주고 add해주기
-				if (kDis[next].size() == k) {
-					if (kDis[next].peek() > cost + nextCost) {
-						kDis[next].poll();
-						kDis[next].add(cost + nextCost);
-						pq.add(new City(next, cost + nextCost)); //k크기 맞춰주기
-					}
-				}
-				else { //아직 큐의 크기가 k가 아닌 경우 그냥 넣어준다
-					//k번째 찾는 pq에 넣어주고 bfs위한 pq에도 넣어준다
-					kDis[next].add(cost + nextCost);
-					pq.add(new City(next, cost + nextCost));
-				}
-			}
-		}
-	}
-
+                if (kDis[nextCity].size() == k) {
+                    if (kDis[nextCity].peek() > time + nextTime) {
+                        kDis[nextCity].poll();
+                        kDis[nextCity].add(time + nextTime);
+                        pq.add(new City1854(nextCity, time + nextTime));
+                    }
+                } else{
+                    kDis[nextCity].add(time + nextTime);
+                    pq.add(new City1854(nextCity, time + nextTime));
+                }
+            }
+        }
+    }
 }
