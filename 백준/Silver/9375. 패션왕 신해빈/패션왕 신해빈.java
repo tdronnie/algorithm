@@ -1,29 +1,36 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
-        int T = Integer.parseInt(br.readLine()); //테스트케이스 수
-        for (int test_case = 1; test_case <= T; test_case++) {
+        int test = Integer.parseInt(br.readLine());
 
-            HashMap<String, Integer> map = new HashMap<>();
-            int n = Integer.parseInt(br.readLine()); //의상 수
+        for (int T = 0; T < test; T++) {
+            int n = Integer.parseInt(br.readLine());
+            HashMap<String, ArrayList<String>> map = new HashMap<>();
 
             for (int i = 0; i < n; i++) {
-                StringTokenizer st = new StringTokenizer(br.readLine()); //의상과 종류 입력받기
-                String stuff = st.nextToken();
+                StringTokenizer st = new StringTokenizer(br.readLine());
+                String name = st.nextToken();
                 String category = st.nextToken();
-                map.put(category, map.getOrDefault(category, 0) + 1); //종류 별 의상들 카운트, 의상 이름은 모두 다름
+                map.computeIfAbsent(category, a -> new ArrayList<>()).add(name);
             }
-            //의상이 k개라면 안입는 것 포함 k+1번의 방법이 있음
-            int rslt = 1;
-            for (Integer cnt: map.values()){
-                rslt *= (cnt+1); //각 의상 개수+1 만큼 조합들... 모든 종류에 대한 조합이므로 곱
-            }
-            System.out.println(rslt-1); //공집합 제외
+
+                int kinds = 1;
+                for (String category : map.keySet()) {
+                    kinds *= (map.get(category).size() + 1);
+                }
+                sb.append(kinds-1).append("\n");
         }
+        System.out.println(sb);
     }
 }
