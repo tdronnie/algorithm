@@ -1,28 +1,26 @@
 import java.util.*;
 class Solution {
     boolean solution(String s) {
-        char[] chArray = s.toCharArray();
         
-        return checkValid(chArray);
-    }
-    
-    boolean checkValid(char[] arr){
-        Stack<Character> s = new Stack<>();
+        Stack<Character> st = new Stack<>();
         
-        for(int i=0; i<arr.length; i++){
-            char ch = arr[i];
-            if(ch == '('){
-                s.add(ch);
-            } else{
-                if(s.isEmpty()){
+        for(char c : s.toCharArray()){
+            if(c == '('){ // '('의 경우 push
+                st.push(c);
+            } else {
+                if(st.isEmpty()){ // 비어있는 경우 false
                     return false;
+                } else { // '('가 있는 경우 pop
+                    st.pop();
                 }
-                s.pop();
             }
         }
-        if(s.isEmpty()){
-            return true;    
+        
+        if(!st.isEmpty()){ // 괄호 처리 끝나지 않은 경우 false
+            return false;
         }
-        return false;
+        
+        return true;
+        
     }
 }
