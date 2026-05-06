@@ -3,34 +3,29 @@ class Solution {
     public int[] solution(String[] operations) {
         
         PriorityQueue<Integer> minQ = new PriorityQueue<>();
-        PriorityQueue<Integer> maxQ = new PriorityQueue<>(Collections.reverseOrder());
+        PriorityQueue<Integer> maxQ = new PriorityQueue<>(Comparator.reverseOrder());
         
-        for(int i=0; i<operations.length; i++){
-            StringTokenizer st = new StringTokenizer(operations[i]);
-            String op = st.nextToken();
-            int num = Integer.parseInt(st.nextToken());
-            
-            if(op.equals("I")){
+        for(String op : operations){
+            String[] chs = op.split(" ");
+            if(chs[0].equals("I")){
+                int num = Integer.parseInt(chs[1]);
                 minQ.add(num);
                 maxQ.add(num);
-            } else if(op.equals("D")){
-                if(minQ.isEmpty()) continue;
-
-                if(num == -1){
-                    int min = minQ.poll();
-                    maxQ.remove(min);
+            } else {
+                if(minQ.isEmpty()) continue; // 큐가 빈 경우 넘어가기
+                
+                if(chs[1].equals("1")){
+                    minQ.remove(maxQ.poll());
                 } else {
-                    int max = maxQ.poll();
-                    minQ.remove(max);
+                    maxQ.remove(minQ.poll());
                 }
-            }            
-            
+            }
         }
-
-        if(minQ.isEmpty()){
-            return new int[]{0, 0};
-        }
-        return new int[]{maxQ.peek(), minQ.peek()};
         
+        if(minQ.isEmpty()) {
+            return new int[]{0, 0};
+        } else {
+            return new int[]{maxQ.poll(), minQ.poll()};
+        }
     }
 }
