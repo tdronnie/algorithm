@@ -1,7 +1,7 @@
 import java.util.*;
 class Solution {
     
-    static Set<Integer> nums = new HashSet<>();
+    static Set<Integer> nums = new HashSet<>(); // 011과 00 중복처리를 위한 set
     static boolean[] isPrime;
     public int solution(String numbers) {
         
@@ -24,6 +24,7 @@ class Solution {
         
     }
     
+    // 1, 17, 7, 71
     static void find(String s, String current, boolean[] visited){
         if(!current.equals("")){
             nums.add(Integer.parseInt(current));
@@ -33,7 +34,7 @@ class Solution {
             if(!visited[i]){
                 visited[i] = true;
                 find(s, current + s.charAt(i), visited);
-                visited[i] = false;
+                visited[i] = false; // 백트레킹
             }
         }
     }
@@ -61,14 +62,12 @@ class Solution {
         if (n >= 0) isPrime[0] = false;
         if (n >= 1) isPrime[1] = false;
 
-        for (int i = 2; i * i <= n; i++) {
-            if (isPrime[i]) {
+        for (int i = 2; i * i <= n; i++) { // 구하려고 하는 범위 제곱근까지
+            if (isPrime[i]) { // 어떤 수가 소수라면 그 수 제곱 이하 값들은 이미 처리됨, 그 이후 소수의 배수 처리
                 for (int j = i * i; j <= n; j += i) {
                     isPrime[j] = false;
                 }
             }
         }
-    }
-    
-    
+    } 
 }
