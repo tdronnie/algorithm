@@ -1,30 +1,20 @@
-import java.util.*;
 class Solution {
-    static int height;
-    static int[][] maxValue;
     public int solution(int[][] triangle) {
         
+        int lev = triangle.length;
+        int maxWidth = triangle[lev-1].length;
+        int[][] maxTotal = new int[lev][maxWidth];
         
-        int height = triangle.length;
-        for(int i=1; i<height; i++){
-            for(int j=0; j<=i; j++){
-                if(j == 0){
-                    triangle[i][j] += triangle[i-1][0];
-                } else if(j == i){
-                    triangle[i][j] += triangle[i-1][j-1];
-                } else{
-                    triangle[i][j] += Math.max(triangle[i-1][j-1], triangle[i-1][j]);    
+        for(int i=lev-1; i>=0; i--){
+            for(int j=0; j<triangle[i].length; j++){
+                if(i == lev-1){
+                    maxTotal[i][j] = triangle[i][j];
+                } else {
+                    maxTotal[i][j] = Math.max(maxTotal[i+1][j], maxTotal[i+1][j+1]) + triangle[i][j];
                 }
-                
             }
         }
         
-        int max = -1;
-        for(int i=0; i<height; i++){
-            max = Math.max(max, triangle[height-1][i]);
-        }
-        
-        return max;
-        
+        return maxTotal[0][0];
     }
 }
