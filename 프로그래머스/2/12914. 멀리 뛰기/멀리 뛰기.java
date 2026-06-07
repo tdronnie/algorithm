@@ -1,16 +1,21 @@
 class Solution {
-    long[] memo;
+    int[] memo;
+    int[] jump;
+    
     public long solution(int n) {
-        memo = new long[n+1];
         
-        return value(n);
+        memo = new int[n+1];
+        jump = new int[n+1];
+        
+        return jump(n);
+        
     }
     
-    public long value(int n){
+    public int jump (int n){
         if(n == 1) return 1;
         if(n == 2) return 2;
-        if(memo[n] != 0) return memo[n];
-        
-        return memo[n] = (value(n-1) + value(n-2)) % 1234567;
+        if(memo[n] != 0) return memo[n] % 1234567;
+        return memo[n] = (jump(n-2) + jump(n-1)) % 1234567;
+            
     }
 }
