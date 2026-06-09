@@ -2,33 +2,27 @@ import java.util.*;
 class Solution {
     public long solution(int n, int[] times) {
         
-        // n = 1;
-        // times = new int[]{2, 3, 4};
+        // 최대 걸리는 시간 -> 가장 오래 걸리는 심사관 * n
         Arrays.sort(times);
-        long lowTime = 1;
-        long maxTime = times[times.length-1] * (long)n;
+        long min = 0;
+        long max = (long)times[times.length-1] * n;
         
-        while(lowTime <= maxTime){
-            long midTime = (lowTime + maxTime) / 2;
-            
-            if(isPossible(midTime, times, n)){
-                maxTime = midTime-1;
-            } else {
-                lowTime = midTime + 1;
+        while(min <= max){
+            long mid = (min + max)/2;
+            //현재시간의 모든 심사관이 심사하는 사람 수의 합이 n이 되도록
+            long person = 0;
+            for(int t : times){
+                person += mid / t;
+                if(person >= n){ // 현재 시간 내 기다리는 사람 이상으로 처리가능하다면 시간 down
+                    max = mid - 1;
+                    break;
+                }
+            }
+            if(person < n){ // 현재 시간 내 기다리는 사람 이상으로 처리 불가능하다면 시간 up
+                min = mid + 1;
             }
         }
         
-        return lowTime;
-    }
-    
-    boolean isPossible(long midTime, int[] times, int n){
-        long totalPeople = 0;
-        for(int time : times){
-            totalPeople += midTime / time;
-            if(totalPeople >= n){
-                return true;
-            }
-        }
-        return totalPeople >= n;
+        return min;
     }
 }
