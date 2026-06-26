@@ -28,5 +28,5 @@ select (
 )
 as grade, id, email
 from developers
-having grade is not null
+having grade is not null # mysql은 having에서 별칭 참조 허용, 실행순서가 select 이전이긴하지만
 order by grade, id
