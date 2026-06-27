@@ -29,4 +29,3 @@ order by fee desc, c.car_type, c.car_id desc;
 # where car_id not in (select car_id
 #                     from car_rental_company_rental_history
 #                     where start_date <= '2022-11-30'and end_date >= '2022-11-01');
-                     
