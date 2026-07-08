@@ -2,12 +2,6 @@ import java.util.*;
 class Solution {
     public int solution(int x, int y, int n) {
         
-        return transform(x, y, n);
-        
-    }
-    
-    int transform(int x, int y, int n){
-        
         Queue<int[]> q = new ArrayDeque<>();
         boolean[] visited = new boolean[y+1];
         q.add(new int[]{x, 0});
@@ -43,7 +37,6 @@ class Solution {
         }
         
         return -1;
-        
         
     }
 }
