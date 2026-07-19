@@ -1,27 +1,25 @@
 import java.util.*;
 class Solution {
     public long solution(int n, int[] works) {
-        int time = 1;
-        long amount = 0;
-        Integer[] ints = new Integer[works.length];
-        PriorityQueue<Integer> jobs = new PriorityQueue<>(Collections.reverseOrder());
+        // 작업들의 작업량 제곱의 합이 최소가 되도록 n만큼 빼기
+        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
+        long answer = 0;
         
-        for(int i=0; i<works.length; i++){
-            jobs.add(works[i]);
+        for(int work : works){
+            pq.add(work);
         }
         
-        while(time <= n){           
-            if(jobs.peek() != 0){
-                int job = jobs.poll();
-                jobs.add(job - 1);
-            }
-            time++;
+        while(n > 0 && !pq.isEmpty()){
+            int work = pq.poll();
+            if(work == 0) continue;
+            pq.add(--work);
+            n--;
         }
         
-        for(int job : jobs){
-            amount += Math.pow(job, 2);
+        while(!pq.isEmpty()){
+            answer += Math.pow(pq.poll(), 2);
         }
         
-        return amount;
+        return answer;
     }
 }
