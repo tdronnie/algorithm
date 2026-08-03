@@ -1,29 +1,29 @@
 import java.util.*;
 class Solution {
     public int solution(int k, int[] tangerine) {
-        if(k == 1) return 1;
         
-        TreeMap<Integer, Integer> map = new TreeMap<>();
+        Map<Integer, Integer> map = new TreeMap<>();
+        int kinds = 0;
+        int idx = 0;
         
-        for(int n : tangerine){
-            map.put(n, map.getOrDefault(n, 0) + 1);
+        for(int t : tangerine){
+            map.put(t, map.getOrDefault(t, 0) + 1);
         }
         
-        List<Map.Entry<Integer, Integer>> list = new ArrayList<>(map.entrySet());
+        int[] counts = new int[map.size()];
         
-        Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>(){
-            public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2){
-                return o2.getValue().compareTo(o1.getValue());
-            }
-        });
+        for(int t : map.values()){
+            counts[idx++] = t;
+        }
         
-        int result = 0;
-        for(Map.Entry<Integer, Integer> entry : list){
-            // System.out.println("키: " + entry.getKey() + " 값: " + entry.getValue());
-            k -= entry.getValue();
-            result++;
+        Arrays.sort(counts);
+        
+        for(int i=counts.length - 1; i>=0; i--){
+            k -= counts[i];
+            kinds++;
             if(k <= 0) break;
         }
-        return result;
+        
+        return kinds;
     }
 }
