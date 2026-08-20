@@ -1,38 +1,34 @@
 import java.util.*;
 class Solution {
     public int solution(int[] order) {
-        Stack<Integer> st = new Stack<>();
         int count = 0;
-        int num = 1;
         
-        for(int i=0; i<order.length; i++){
-            int target = order[i];
+        Stack<Integer> st = new Stack<>();
+        int idx = 0;
+        
+        for(int no=1; no <= order.length; no++){
             
-            
-            while(num <= order.length && num < target){
-                st.push(num++);
-            }
-            
-            //트럭에 있음
-            if(num == target){
-                count++;
-                num++;
-            }
-            
-            //보조 컨베이어에 있음
-            else if(!st.isEmpty() && target == st.peek()){
+            st.push(no);
+            while (!st.isEmpty() && st.peek() == order[idx]) {
                 st.pop();
-                count++;
+                idx++;
             }
-            
-            //현재 차례에 찾을 수 없음, 종료
-            else {
-                break;
-            }
-            
+                   
         }
         
-        return count;
+        // if(idx < order.length){
+        //     while(!st.isEmpty()){
+        //         if(st.peek() == order[idx]){
+        //             st.pop();
+        //             count++;
+        //             idx++;
+        //         } else {
+        //             break;
+        //         }
+        //     }
+        // }
+        
+        return idx;
         
     }
 }
