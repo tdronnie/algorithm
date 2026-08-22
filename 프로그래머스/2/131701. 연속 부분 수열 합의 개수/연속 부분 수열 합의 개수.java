@@ -1,22 +1,20 @@
 import java.util.*;
 class Solution {
     public int solution(int[] elements) {
-        TreeSet<Integer> ts = new TreeSet<>();
-        for(int len=1; len <= elements.length; len++){
-            for(int i=0; i < elements.length; i++){
+        
+        Set<Integer> sums = new HashSet<>();
+        
+        for(int i=1; i<=elements.length; i++){
+            for(int start = 0; start < elements.length; start++){
                 int sum = 0;
-                int count = 0;
-                for(int idx = i; count <= len ; idx++){
-                    if(count == len) break;
-                    if(idx >= elements.length){
-                        idx = 0;
-                    }
-                    sum += elements[idx];
-                    count++;
+                for(int idx = start; idx < start + i; idx++){
+                    int curr = idx % elements.length;
+                    sum += elements[curr];
                 }
-                ts.add(sum);
+                sums.add(sum);
             }
         }
-        return ts.size();
+        
+        return sums.size();
     }
 }
