@@ -1,37 +1,42 @@
 import java.util.*;
 class Solution {
     public int solution(String[] want, int[] number, String[] discount) {
-        TreeMap<String, Integer> map = new TreeMap<>();
-        TreeMap<String, Integer> curr = new TreeMap<>();
-        int left = 0;
-        int right = 9;
+        
+        Map<String, Integer> map = new HashMap<>();
+        Map<String, Integer> m1 = new HashMap<>();
+        int start = 0;
+        int end = want.length-1;
         int count = 0;
         
         for(int i=0; i<want.length; i++){
             map.put(want[i], number[i]);
+            m1.put(want[i], number[i]);
         }
         
-        for(int i=0; i<=9; i++){
-            curr.put(discount[i], curr.getOrDefault(discount[i], 0) + 1);
-        }
-        
-        while(true){
-            if(check(map, curr)){
-                count++;    
+        while(start + 10 <= discount.length){
+            
+            for(int i=0; i<10; i++){
+                
+                String stuff = discount[i+start];
+                if(m1.containsKey(stuff) && m1.get(stuff) > 0){
+                    m1.put(stuff, m1.get(stuff) - 1);
+                    if(m1.get(stuff) == 0) m1.remove(stuff);
+                } else { // 불가능, 다음 인덱스로
+                    break;
+                }
             }
-            curr.put(discount[left], curr.getOrDefault(discount[left], 0) - 1);
-            left++;
-            right++;
-            if(right == discount.length) break;
-            curr.put(discount[right], curr.getOrDefault(discount[right], 0) + 1);
+            if(m1.size() == 0){
+                count++;
+            }
+            // 하루이동, 카운트하는 맵 초기화
+            m1 = new HashMap<>();
+            for(Map.Entry<String, Integer> set : map.entrySet()){
+                m1.put(set.getKey(), set.getValue());
+            }
+            start++;
+            end++;
         }
+        
         return count;
-    }
-    
-    public boolean check(Map<String, Integer> map, Map<String, Integer> curr){
-        for(Map.Entry<String, Integer> entry : map.entrySet()){
-            if(curr.get(entry.getKey()) == null || curr.get(entry.getKey()) < entry.getValue()) return false;
-        }
-        return true;
     }
 }
